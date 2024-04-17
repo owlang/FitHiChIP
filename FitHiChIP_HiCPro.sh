@@ -1018,7 +1018,17 @@ if [[ ! -z $InpCoolFile ]]; then
 	## if valid read pairs are provided in .cool / .mcool format
 	## here we dump the CIS interactions
 	#=================
-	cooler dump -t pixels --header --join $InpCoolFile | awk '{if (NR==1) {print $0} else if ($1==$4) {if (substr($1,1,1) ~ /^[0-9]/ ) {print "chr"$1"\t"$2"\t"$3"\tchr"$4"\t"$5"\t"$6"\t"$7} else {print $0}}}' - > ${Interaction_Initial_File}
+
+	## check file extension	
+	if [[ $InpCoolFile == *.cool ]]; then
+		## cool extension
+		cooler dump -t pixels --header --join $InpCoolFile | awk '{if (NR==1) {print $0} else if ($1==$4) {if (substr($1,1,1) ~ /^[0-9]/ ) {print "chr"$1"\t"$2"\t"$3"\tchr"$4"\t"$5"\t"$6"\t"$7} else {print $0}}}' - > ${Interaction_Initial_File}
+	else
+		## mcool extension
+		## Use '::' to specify a group path"
+		## cooler is provided at /resolutions/500000 etc
+		cooler dump -t pixels --header --join ${InpCoolFile}::/resolutions/${BIN_SIZE} | awk '{if (NR==1) {print $0} else if ($1==$4) {if (substr($1,1,1) ~ /^[0-9]/ ) {print "chr"$1"\t"$2"\t"$3"\tchr"$4"\t"$5"\t"$6"\t"$7} else {print $0}}}' - > ${Interaction_Initial_File}
+	fi
 
 	# also create two files: 
 	# 1) bin interval file, containing the bins with respect to the specified bin size, and bin numbers
